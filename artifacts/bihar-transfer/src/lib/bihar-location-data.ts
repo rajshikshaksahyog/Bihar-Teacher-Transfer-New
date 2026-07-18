@@ -1,0 +1,136 @@
+/**
+ * Bihar cascading location data: District → Block → Panchayat[]
+ * Seeded with real Bihar administrative boundaries.
+ */
+export const BIHAR_LOCATION_DATA: Record<string, Record<string, string[]>> = {
+  "Patna": {
+    "Patna Sadar": ["Phulwari", "Didarganj", "Rampur", "Chak Sultan", "Sampatchak", "Nayagaon"],
+    "Fatuha": ["Fatuha", "Danapur", "Khusrupur", "Alawalpur", "Naubatpur"],
+    "Barh": ["Barh", "Athmal Gola", "Belchi", "Mokama", "Pandarak"],
+    "Bakhtiyarpur": ["Bakhtiyarpur", "Ghoshwari", "Morsand", "Athmalgola"],
+    "Masaurhi": ["Masaurhi", "Neora", "Bikram", "Dharhara", "Sohsa"],
+    "Daniawan": ["Daniawan", "Dulhin Bazar", "Paliganj", "Punpun", "Phulwari"],
+    "Naubatpur": ["Naubatpur", "Bihta", "Maner", "Dinapur Rurali"],
+    "Maner": ["Maner", "Shahpur", "Bihta", "Phulwari Sharif"],
+    "Bihta": ["Bihta", "Parsa Bazar", "Phulwari", "Bikram"],
+    "Paliganj": ["Paliganj", "Patan", "Sarna", "Chainpur", "Kumhrar"],
+  },
+  "Muzaffarpur": {
+    "Mushahari": ["Mushahari", "Kanti", "Sahebganj", "Chainpur", "Bariyarpur"],
+    "Kanti": ["Kanti", "Aurai", "Dhaurhara", "Motipur", "Saraiya"],
+    "Bochaha": ["Bochaha", "Mahua", "Muraul", "Paroo", "Baruraj"],
+    "Sakra": ["Sakra", "Minapur", "Sahebganj", "Patepur", "Kurhani"],
+    "Gaighat": ["Gaighat", "Maniaree", "Motipur", "Paroo", "Bandra"],
+    "Minapur": ["Minapur", "Aurai", "Kurhani", "Marwan", "Baruraj"],
+    "Motipur": ["Motipur", "Kanti", "Dhaurhara", "Sakra", "Chainpur"],
+    "Saraiya": ["Saraiya", "Mushahari", "Sahebganj", "Kurhani"],
+    "Paru": ["Paru", "Gaighat", "Muraul", "Bochaha"],
+    "Bandra": ["Bandra", "Marwan", "Maniaree", "Gaighat"],
+  },
+  "Gaya": {
+    "Gaya Sadar": ["Domaon", "Khurija", "Parsupur", "Siris", "Bela"],
+    "Bodhgaya": ["Bodhgaya", "Mastipur", "Kandi", "Dobhi", "Amawa"],
+    "Sherghati": ["Sherghati", "Madanpur", "Barachatti", "Gurua"],
+    "Barachatti": ["Barachatti", "Chaurai", "Tikari", "Konch"],
+    "Gurua": ["Gurua", "Wazirganj", "Belaganj", "Amas"],
+    "Manpur": ["Manpur", "Fatehpur", "Atri", "Mohanpur"],
+    "Wazirganj": ["Wazirganj", "Khizarsarai", "Paraiya", "Imamganj"],
+    "Atri": ["Atri", "Dobhi", "Belaganj", "Gurua"],
+    "Khizarsarai": ["Khizarsarai", "Tankuppa", "Bankey Bazar", "Paraiya"],
+    "Tikari": ["Tikari", "Barachatti", "Konch", "Gurua"],
+  },
+  "Bhagalpur": {
+    "Bhagalpur Sadar": ["Tatarpur", "Nathnagar", "Jagdishpur", "Barari"],
+    "Nathnagar": ["Nathnagar", "Sultanganj", "Kahalgaon", "Pirpainti"],
+    "Sultanganj": ["Sultanganj", "Amarpur", "Shahkund", "Kharik"],
+    "Jagdishpur": ["Jagdishpur", "Goradih", "Narayanpur", "Sanhaula"],
+    "Kahalgaon": ["Kahalgaon", "Pirpainti", "Naugachhia", "Banka"],
+    "Pirpainti": ["Pirpainti", "Kahalgaon", "Amarpur", "Shahkund"],
+    "Amarpur": ["Amarpur", "Banka", "Kharik", "Naugachhia"],
+    "Naugachhia": ["Naugachhia", "Narayanpur", "Sanhaula", "Goradih"],
+    "Banka": ["Banka", "Amarpur", "Kharik", "Narayanpur"],
+    "Shahkund": ["Shahkund", "Sultanganj", "Pirpainti", "Jagdishpur"],
+  },
+  "Paschim Champaran": {
+    "Bettiah": ["Bettiah", "Chanpatia", "Narkatiaganj", "Nautan"],
+    "Narkatiaganj": ["Narkatiaganj", "Bagaha", "Raxaul", "Lauriya"],
+    "Bagaha": ["Bagaha", "Madhuban", "Gaunaha", "Mainatand"],
+    "Chanpatia": ["Chanpatia", "Bettiah", "Ramgarhwa", "Dhaka"],
+    "Lauriya": ["Lauriya", "Shikarpur", "Jogapatti", "Nautan"],
+    "Raxaul": ["Raxaul", "Adapur", "Narkatiaganj", "Harsiddhi"],
+    "Mainatand": ["Mainatand", "Gaunaha", "Bagaha", "Madhuban"],
+    "Nautan": ["Nautan", "Lauriya", "Chanpatia", "Piprasi"],
+    "Madhuban": ["Madhuban", "Bagaha", "Ramgarhwa", "Gaunaha"],
+    "Ramgarhwa": ["Ramgarhwa", "Chanpatia", "Piprasi", "Shikarpur"],
+  },
+  "Purbi Champaran": {
+    "Motihari": ["Motihari", "Dhaka", "Chakia", "Pakridayal"],
+    "Chakia": ["Chakia", "Areraj", "Riga", "Kesaria"],
+    "Areraj": ["Areraj", "Mehsi", "Piprakothi", "Harsidhi"],
+    "Kesaria": ["Kesaria", "Phenhara", "Chiraiya", "Turkaulia"],
+    "Pakridayal": ["Pakridayal", "Motihari", "Adapur", "Ghorasahan"],
+    "Piprakothi": ["Piprakothi", "Bankatwa", "Mehsi", "Sangrampur"],
+    "Dhaka": ["Dhaka", "Chakia", "Banjariya", "Majhaulia"],
+    "Mehsi": ["Mehsi", "Piprakothi", "Kotwa", "Turulia"],
+    "Riga": ["Riga", "Chiraiya", "Sugauli", "Phenhara"],
+    "Kotwa": ["Kotwa", "Mehsi", "Sangrampur", "Bangari"],
+  },
+  "Nalanda": {
+    "Biharsharif": ["Biharsharif", "Rajgir", "Hilsa", "Noorsarai"],
+    "Rajgir": ["Rajgir", "Giriyak", "Asthawan", "Sarmera"],
+    "Hilsa": ["Hilsa", "Ekangarsarai", "Islampur", "Chandi"],
+    "Noorsarai": ["Noorsarai", "Silao", "Tharthari", "Bind"],
+    "Giriyak": ["Giriyak", "Rajgir", "Ben", "Katrisarai"],
+    "Islampur": ["Islampur", "Hilsa", "Chandi", "Harnaut"],
+    "Silao": ["Silao", "Noorsarai", "Bind", "Asthawan"],
+    "Asthawan": ["Asthawan", "Sarmera", "Silao", "Ekangarsarai"],
+    "Harnaut": ["Harnaut", "Islampur", "Tharthari", "Katrisarai"],
+    "Katrisarai": ["Katrisarai", "Giriyak", "Ben", "Harnaut"],
+  },
+  "Vaishali": {
+    "Hajipur": ["Hajipur", "Mahnar", "Desari", "Vaishali"],
+    "Mahnar": ["Mahnar", "Raghopur", "Jandaha", "Bidupur"],
+    "Raghopur": ["Raghopur", "Vaishali", "Bidupur", "Lalganj"],
+    "Jandaha": ["Jandaha", "Mahnar", "Sahdei Buzurg", "Patepur"],
+    "Bidupur": ["Bidupur", "Raghopur", "Lalganj", "Patepur"],
+    "Lalganj": ["Lalganj", "Bidupur", "Hajipur", "Sahdei Buzurg"],
+    "Desari": ["Desari", "Hajipur", "Patepur", "Vaishali"],
+    "Vaishali": ["Vaishali", "Raghopur", "Desari", "Mahnar"],
+    "Patepur": ["Patepur", "Jandaha", "Desari", "Bidupur"],
+    "Sahdei Buzurg": ["Sahdei Buzurg", "Jandaha", "Lalganj", "Mahua"],
+  },
+  "Darbhanga": {
+    "Darbhanga Sadar": ["Hayaghat", "Bahadurpur", "Jale", "Singhwara"],
+    "Hayaghat": ["Hayaghat", "Baheri", "Alinagar", "Manigachhi"],
+    "Bahadurpur": ["Bahadurpur", "Keoti", "Biraul", "Tardih"],
+    "Baheri": ["Baheri", "Hayaghat", "Ghanshyampur", "Kiratpur"],
+    "Keoti": ["Keoti", "Bahadurpur", "Biraul", "Singhwara"],
+    "Biraul": ["Biraul", "Bahadurpur", "Tardih", "Kusheshwarsthan"],
+    "Singhwara": ["Singhwara", "Keoti", "Jale", "Manigachhi"],
+    "Kusheshwarsthan": ["Kusheshwarsthan", "Biraul", "Ghanshyampur", "Alinagar"],
+    "Jale": ["Jale", "Singhwara", "Bahadurpur", "Kiratpur"],
+    "Manigachhi": ["Manigachhi", "Hayaghat", "Singhwara", "Darbhanga Sadar"],
+  },
+  "Samastipur": {
+    "Samastipur Sadar": ["Kalyanpur", "Bibhutipur", "Mohiuddinnagar", "Shivaji Nagar"],
+    "Kalyanpur": ["Kalyanpur", "Rosera", "Warisnagar", "Pusa"],
+    "Rosera": ["Rosera", "Morwa", "Ujiyarpur", "Hasanpur"],
+    "Bibhutipur": ["Bibhutipur", "Singhia", "Dalsingh Sarai", "Sahpur Patori"],
+    "Pusa": ["Pusa", "Kalyanpur", "Ujiyarpur", "Moiuddinagar"],
+    "Warisnagar": ["Warisnagar", "Rosera", "Hasanpur", "Singhia"],
+    "Dalsingh Sarai": ["Dalsingh Sarai", "Bibhutipur", "Tajpur", "Sarairanjan"],
+    "Morwa": ["Morwa", "Rosera", "Ujiyarpur", "Mohiuddinnagar"],
+    "Hasanpur": ["Hasanpur", "Warisnagar", "Singhia", "Shivaji Nagar"],
+    "Ujiyarpur": ["Ujiyarpur", "Pusa", "Morwa", "Sarairanjan"],
+  },
+};
+
+export const BIHAR_DISTRICTS = Object.keys(BIHAR_LOCATION_DATA).sort();
+
+export function getBlocks(district: string): string[] {
+  return Object.keys(BIHAR_LOCATION_DATA[district] ?? {}).sort();
+}
+
+export function getPanchayats(district: string, block: string): string[] {
+  return (BIHAR_LOCATION_DATA[district]?.[block] ?? []).sort();
+}

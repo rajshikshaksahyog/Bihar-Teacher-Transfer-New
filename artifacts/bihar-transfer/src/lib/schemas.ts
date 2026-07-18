@@ -36,10 +36,17 @@ export const CASTE_CATEGORIES = [
   "EWS (आर्थिक रूप से कमजोर वर्ग)",
 ] as const;
 
+export const DESIGNATIONS = [
+  "Primary Teacher (1-5)",
+  "Middle School Teacher (6-8)",
+  "High School Teacher (9-10)",
+  "Higher Secondary Teacher (11-12)",
+] as const;
+
 export const profileSchema = z.object({
   name: z.string().min(2, { message: "Name is required" }),
   phone: z.string().length(10, { message: "Mobile number must be 10 digits" }).regex(/^\d+$/, { message: "Must contain only numbers" }).optional().nullable(),
-  designation: z.string().min(2, { message: "Designation is required" }),
+  designation: z.enum(DESIGNATIONS, { message: "Please select a designation" }),
   subject: z.string().min(1, { message: "Subject is required" }),
   teacherCategory: z.enum(TEACHER_CATEGORIES, { message: "Please select a teacher category" }),
   casteCategory: z.enum(CASTE_CATEGORIES, { message: "Please select a caste category" }),
