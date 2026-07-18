@@ -40,7 +40,7 @@ export const profileSchema = z.object({
   name: z.string().min(2, { message: "Name is required" }),
   phone: z.string().length(10, { message: "Mobile number must be 10 digits" }).regex(/^\d+$/, { message: "Must contain only numbers" }).optional().nullable(),
   designation: z.string().min(2, { message: "Designation is required" }),
-  subject: z.string().optional().nullable(),
+  subject: z.string().min(1, { message: "Subject is required" }),
   teacherCategory: z.enum(TEACHER_CATEGORIES, { message: "Please select a teacher category" }),
   casteCategory: z.enum(CASTE_CATEGORIES, { message: "Please select a caste category" }),
   district: z.string().min(2, { message: "District is required" }),

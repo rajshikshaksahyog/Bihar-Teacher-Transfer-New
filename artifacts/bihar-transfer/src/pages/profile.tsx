@@ -1,24 +1,40 @@
+import { useRef, useState, useEffect } from "react";
 import { useGetMyProfile, useUpdateMyProfile, getGetMyProfileQueryKey } from "@workspace/api-client-react";
 import { useQueryClient } from "@tanstack/react-query";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useToast } from "@/hooks/use-toast";
 import { profileSchema, TEACHER_CATEGORIES, CASTE_CATEGORIES } from "@/lib/schemas";
+import { useUpload } from "@workspace/object-storage-web";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle, CardFooter } from "@/components/ui/card";
-import { Form, FormControl, FormDescription, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
+import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Skeleton } from "@/components/ui/skeleton";
-import { Save, UserCircle } from "lucide-react";
+import { Save, UserCircle, Camera, Loader2 } from "lucide-react";
 import * as z from "zod";
-import { useEffect } from "react";
 
 export default function Profile() {
   const { toast } = useToast();
   const queryClient = useQueryClient();
   const { data: profile, isLoading } = useGetMyProfile();
   const updateProfile = useUpdateMyProfile();
+  const fileInputRef = useRef<HTMLInputElement>(null);
+
+  // Profile picture is managed separately from react-hook-form
+  const [profilePicturePath, setProfilePicturePath] = useState<string | null>(null);
+  const [previewUrl, setPreviewUrl] = useState<string | null>(null);
+
+  const { uploadFile, isUploading } = useUpload({
+    onSuccess: (response) => {
+      setProfilePicturePath(response.objectPath);
+      toast({ title: "Photo uploaded", description: "Save your profile to keep the change." });
+    },
+    onError: () => {
+      toast({ variant: "destructive", title: "Upload failed", description: "Could not upload photo. Please try again." });
+    },
+  });
 
   const form = useForm<z.infer<typeof profileSchema>>({
     resolver: zodResolver(profileSchema),
@@ -54,26 +70,38 @@ export default function Profile() {
         schoolCode: profile.schoolCode || "",
         serviceYears: profile.serviceYears ?? undefined,
       });
+      const pic = (profile as any).profilePicture;
+      if (pic) {
+        setProfilePicturePath(pic);
+        setPreviewUrl(`/api/storage${pic}`);
+      }
     }
   }, [profile, form]);
 
+  const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    if (!file.type.startsWith("image/")) {
+      toast({ variant: "destructive", title: "Invalid file", description: "Please select an image file." });
+      return;
+    }
+    // Show local preview immediately
+    setPreviewUrl(URL.createObjectURL(file));
+    await uploadFile(file);
+    // Reset so same file can be re-selected
+    e.target.value = "";
+  };
+
   const onSubmit = (values: z.infer<typeof profileSchema>) => {
     updateProfile.mutate(
-      { data: values as any },
+      { data: { ...values, profilePicture: profilePicturePath } as any },
       {
         onSuccess: (data) => {
           queryClient.setQueryData(getGetMyProfileQueryKey(), data);
-          toast({
-            title: "Profile Updated",
-            description: "Your profile has been saved successfully.",
-          });
+          toast({ title: "Profile Updated", description: "Your profile has been saved successfully." });
         },
         onError: (err: any) => {
-          toast({
-            variant: "destructive",
-            title: "Update Failed",
-            description: err.message || "Failed to update profile.",
-          });
+          toast({ variant: "destructive", title: "Update Failed", description: err.message || "Failed to update profile." });
         },
       }
     );
@@ -83,6 +111,11 @@ export default function Profile() {
     return (
       <div className="max-w-3xl mx-auto space-y-6">
         <Skeleton className="h-10 w-48 mb-6" />
+        <Card>
+          <CardContent className="pt-6 flex flex-col items-center gap-4">
+            <Skeleton className="h-28 w-28 rounded-full" />
+          </CardContent>
+        </Card>
         <Card>
           <CardHeader>
             <Skeleton className="h-6 w-32 mb-2" />
@@ -115,6 +148,65 @@ export default function Profile() {
 
       <Form {...form}>
         <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
+
+          {/* Profile Picture Card */}
+          <Card className="shadow-md">
+            <CardHeader>
+              <CardTitle>Profile Photo</CardTitle>
+              <CardDescription>Upload a clear passport-size photo. JPEG or PNG recommended.</CardDescription>
+            </CardHeader>
+            <CardContent className="flex flex-col items-center gap-4">
+              {/* Avatar circle */}
+              <div className="relative group">
+                <div
+                  className="w-28 h-28 rounded-full border-4 border-primary/20 overflow-hidden bg-muted flex items-center justify-center cursor-pointer"
+                  onClick={() => fileInputRef.current?.click()}
+                >
+                  {previewUrl ? (
+                    <img
+                      src={previewUrl}
+                      alt="Profile"
+                      className="w-full h-full object-cover"
+                    />
+                  ) : (
+                    <UserCircle className="w-20 h-20 text-muted-foreground/40" />
+                  )}
+                  {/* Hover overlay */}
+                  <div className="absolute inset-0 rounded-full bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
+                    {isUploading ? (
+                      <Loader2 className="w-7 h-7 text-white animate-spin" />
+                    ) : (
+                      <Camera className="w-7 h-7 text-white" />
+                    )}
+                  </div>
+                </div>
+              </div>
+
+              <Button
+                type="button"
+                variant="outline"
+                size="sm"
+                className="gap-2"
+                disabled={isUploading}
+                onClick={() => fileInputRef.current?.click()}
+              >
+                {isUploading ? (
+                  <><Loader2 className="w-4 h-4 animate-spin" /> Uploading…</>
+                ) : (
+                  <><Camera className="w-4 h-4" /> {previewUrl ? "Change Photo" : "Upload Photo"}</>
+                )}
+              </Button>
+
+              <input
+                ref={fileInputRef}
+                type="file"
+                accept="image/*"
+                className="hidden"
+                onChange={handleFileChange}
+              />
+            </CardContent>
+          </Card>
+
           {/* Personal Information */}
           <Card className="shadow-md border-t-4 border-t-primary">
             <CardHeader>
@@ -127,7 +219,7 @@ export default function Profile() {
                 name="name"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Full Name</FormLabel>
+                    <FormLabel>Full Name <span className="text-destructive">*</span></FormLabel>
                     <FormControl>
                       <Input placeholder="Rajesh Kumar" {...field} />
                     </FormControl>
@@ -142,13 +234,7 @@ export default function Profile() {
                   <FormItem>
                     <FormLabel>Mobile Number</FormLabel>
                     <FormControl>
-                      <Input
-                        type="tel"
-                        placeholder="10-digit mobile number"
-                        maxLength={10}
-                        {...field}
-                        value={field.value || ""}
-                      />
+                      <Input type="tel" placeholder="10-digit mobile number" maxLength={10} {...field} value={field.value || ""} />
                     </FormControl>
                     <FormMessage />
                   </FormItem>
@@ -159,7 +245,7 @@ export default function Profile() {
                 name="designation"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Designation</FormLabel>
+                    <FormLabel>Designation <span className="text-destructive">*</span></FormLabel>
                     <FormControl>
                       <Input placeholder="e.g. Primary Teacher, High School Teacher" {...field} />
                     </FormControl>
@@ -172,9 +258,7 @@ export default function Profile() {
                 name="teacherCategory"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>
-                      Teacher Category <span className="text-destructive">*</span>
-                    </FormLabel>
+                    <FormLabel>Teacher Category <span className="text-destructive">*</span></FormLabel>
                     <Select onValueChange={field.onChange} value={field.value || ""}>
                       <FormControl>
                         <SelectTrigger>
@@ -183,9 +267,7 @@ export default function Profile() {
                       </FormControl>
                       <SelectContent>
                         {TEACHER_CATEGORIES.map((cat) => (
-                          <SelectItem key={cat} value={cat}>
-                            {cat}
-                          </SelectItem>
+                          <SelectItem key={cat} value={cat}>{cat}</SelectItem>
                         ))}
                       </SelectContent>
                     </Select>
@@ -198,9 +280,7 @@ export default function Profile() {
                 name="casteCategory"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>
-                      Joining Caste Category (आरक्षित श्रेणी) <span className="text-destructive">*</span>
-                    </FormLabel>
+                    <FormLabel>Joining Caste Category (आरक्षित श्रेणी) <span className="text-destructive">*</span></FormLabel>
                     <Select onValueChange={field.onChange} value={field.value || ""}>
                       <FormControl>
                         <SelectTrigger>
@@ -209,9 +289,7 @@ export default function Profile() {
                       </FormControl>
                       <SelectContent>
                         {CASTE_CATEGORIES.map((cat) => (
-                          <SelectItem key={cat} value={cat}>
-                            {cat}
-                          </SelectItem>
+                          <SelectItem key={cat} value={cat}>{cat}</SelectItem>
                         ))}
                       </SelectContent>
                     </Select>
@@ -224,11 +302,10 @@ export default function Profile() {
                 name="subject"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Subject (Optional)</FormLabel>
+                    <FormLabel>Subject <span className="text-destructive">*</span></FormLabel>
                     <FormControl>
-                      <Input placeholder="e.g. Mathematics, Hindi" {...field} value={field.value || ""} />
+                      <Input placeholder="e.g. Mathematics, Hindi, Science" {...field} value={field.value || ""} />
                     </FormControl>
-                    <FormDescription>Leave blank if general</FormDescription>
                     <FormMessage />
                   </FormItem>
                 )}
@@ -261,7 +338,7 @@ export default function Profile() {
                 name="district"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>District</FormLabel>
+                    <FormLabel>District <span className="text-destructive">*</span></FormLabel>
                     <FormControl>
                       <Input placeholder="e.g. Patna, Gaya" {...field} />
                     </FormControl>
@@ -274,7 +351,7 @@ export default function Profile() {
                 name="block"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Block</FormLabel>
+                    <FormLabel>Block <span className="text-destructive">*</span></FormLabel>
                     <FormControl>
                       <Input placeholder="Block name" {...field} />
                     </FormControl>
@@ -287,7 +364,7 @@ export default function Profile() {
                 name="panchayat"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Panchayat</FormLabel>
+                    <FormLabel>Panchayat <span className="text-destructive">*</span></FormLabel>
                     <FormControl>
                       <Input placeholder="Panchayat name" {...field} />
                     </FormControl>
@@ -300,7 +377,7 @@ export default function Profile() {
                 name="school"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>School Name</FormLabel>
+                    <FormLabel>School Name <span className="text-destructive">*</span></FormLabel>
                     <FormControl>
                       <Input placeholder="Full school name" {...field} />
                     </FormControl>
@@ -323,7 +400,7 @@ export default function Profile() {
               />
             </CardContent>
             <CardFooter className="bg-muted/30 pt-6 flex justify-end">
-              <Button type="submit" size="lg" className="gap-2" disabled={updateProfile.isPending}>
+              <Button type="submit" size="lg" className="gap-2" disabled={updateProfile.isPending || isUploading}>
                 <Save className="w-5 h-5" />
                 {updateProfile.isPending ? "Saving..." : "Save Profile"}
               </Button>

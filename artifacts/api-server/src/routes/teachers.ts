@@ -34,7 +34,7 @@ router.put("/teachers/me", async (req, res) => {
   const teacherId = requireAuth(req, res);
   if (!teacherId) return;
 
-  const { name, phone, designation, subject, teacherCategory, casteCategory, district, block, panchayat, school, schoolCode, serviceYears } = req.body;
+  const { name, phone, designation, subject, teacherCategory, casteCategory, district, block, panchayat, school, schoolCode, serviceYears, profilePicture } = req.body;
 
   const isProfileComplete = !!(name && designation && district && block && panchayat && school && teacherCategory && casteCategory);
 
@@ -52,6 +52,7 @@ router.put("/teachers/me", async (req, res) => {
       ...(school !== undefined && { school }),
       ...(schoolCode !== undefined && { schoolCode }),
       ...(serviceYears !== undefined && { serviceYears }),
+      ...(profilePicture !== undefined && { profilePicture }),
       isProfileComplete,
       updatedAt: new Date(),
     })
