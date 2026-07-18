@@ -34,18 +34,20 @@ router.put("/teachers/me", async (req, res) => {
   const teacherId = requireAuth(req, res);
   if (!teacherId) return;
 
-  const { name, employeeId, designation, subject, district, block, school, schoolCode, serviceYears } = req.body;
+  const { name, phone, designation, subject, teacherCategory, district, block, panchayat, school, schoolCode, serviceYears } = req.body;
 
-  const isProfileComplete = !!(name && employeeId && designation && district && block && school);
+  const isProfileComplete = !!(name && designation && district && block && panchayat && school && teacherCategory);
 
   const [updated] = await db.update(teachersTable)
     .set({
       ...(name !== undefined && { name }),
-      ...(employeeId !== undefined && { employeeId }),
+      ...(phone !== undefined && { phone }),
       ...(designation !== undefined && { designation }),
       ...(subject !== undefined && { subject }),
+      ...(teacherCategory !== undefined && { teacherCategory }),
       ...(district !== undefined && { district }),
       ...(block !== undefined && { block }),
+      ...(panchayat !== undefined && { panchayat }),
       ...(school !== undefined && { school }),
       ...(schoolCode !== undefined && { schoolCode }),
       ...(serviceYears !== undefined && { serviceYears }),

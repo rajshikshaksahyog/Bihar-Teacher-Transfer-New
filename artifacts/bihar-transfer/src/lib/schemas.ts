@@ -18,13 +18,22 @@ export const emailVerifySchema = z.object({
   otp: z.string().length(6, { message: "OTP must be 6 digits" }).regex(/^\d+$/, { message: "Must contain only numbers" }),
 });
 
+export const TEACHER_CATEGORIES = [
+  "BPSC TRE",
+  "Niyojit",
+  "Sakshamta Passed (Vishesh Shikshak)",
+  "Regular",
+] as const;
+
 export const profileSchema = z.object({
   name: z.string().min(2, { message: "Name is required" }),
-  employeeId: z.string().min(2, { message: "Employee ID is required" }),
+  phone: z.string().length(10, { message: "Mobile number must be 10 digits" }).regex(/^\d+$/, { message: "Must contain only numbers" }).optional().nullable(),
   designation: z.string().min(2, { message: "Designation is required" }),
   subject: z.string().optional().nullable(),
+  teacherCategory: z.enum(TEACHER_CATEGORIES, { message: "Please select a teacher category" }),
   district: z.string().min(2, { message: "District is required" }),
   block: z.string().min(2, { message: "Block is required" }),
+  panchayat: z.string().min(1, { message: "Panchayat is required" }),
   school: z.string().min(2, { message: "School name is required" }),
   schoolCode: z.string().optional().nullable(),
   serviceYears: z.coerce.number().min(0).max(50).optional().nullable(),

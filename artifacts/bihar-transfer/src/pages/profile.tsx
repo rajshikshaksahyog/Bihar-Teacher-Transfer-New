@@ -3,11 +3,12 @@ import { useQueryClient } from "@tanstack/react-query";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useToast } from "@/hooks/use-toast";
-import { profileSchema } from "@/lib/schemas";
+import { profileSchema, TEACHER_CATEGORIES } from "@/lib/schemas";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle, CardFooter } from "@/components/ui/card";
 import { Form, FormControl, FormDescription, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Save, UserCircle } from "lucide-react";
 import * as z from "zod";
@@ -23,11 +24,13 @@ export default function Profile() {
     resolver: zodResolver(profileSchema),
     defaultValues: {
       name: "",
-      employeeId: "",
+      phone: "",
       designation: "",
       subject: "",
+      teacherCategory: undefined,
       district: "",
       block: "",
+      panchayat: "",
       school: "",
       schoolCode: "",
       serviceYears: undefined,
@@ -38,11 +41,13 @@ export default function Profile() {
     if (profile) {
       form.reset({
         name: profile.name || "",
-        employeeId: profile.employeeId || "",
+        phone: (profile as any).phone || "",
         designation: profile.designation || "",
         subject: profile.subject || "",
+        teacherCategory: (profile as any).teacherCategory || undefined,
         district: profile.district || "",
         block: profile.block || "",
+        panchayat: (profile as any).panchayat || "",
         school: profile.school || "",
         schoolCode: profile.schoolCode || "",
         serviceYears: profile.serviceYears ?? undefined,
@@ -52,7 +57,7 @@ export default function Profile() {
 
   const onSubmit = (values: z.infer<typeof profileSchema>) => {
     updateProfile.mutate(
-      { data: values },
+      { data: values as any },
       {
         onSuccess: (data) => {
           queryClient.setQueryData(getGetMyProfileQueryKey(), data);
@@ -108,6 +113,7 @@ export default function Profile() {
 
       <Form {...form}>
         <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
+          {/* Personal Information */}
           <Card className="shadow-md border-t-4 border-t-primary">
             <CardHeader>
               <CardTitle>Personal Information</CardTitle>
@@ -129,12 +135,18 @@ export default function Profile() {
               />
               <FormField
                 control={form.control}
-                name="employeeId"
+                name="phone"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Employee ID / Teacher ID</FormLabel>
+                    <FormLabel>Mobile Number</FormLabel>
                     <FormControl>
-                      <Input placeholder="BR-T-12345" {...field} />
+                      <Input
+                        type="tel"
+                        placeholder="10-digit mobile number"
+                        maxLength={10}
+                        {...field}
+                        value={field.value || ""}
+                      />
                     </FormControl>
                     <FormMessage />
                   </FormItem>
@@ -149,6 +161,32 @@ export default function Profile() {
                     <FormControl>
                       <Input placeholder="e.g. Primary Teacher, High School Teacher" {...field} />
                     </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+              <FormField
+                control={form.control}
+                name="teacherCategory"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>
+                      Teacher Category <span className="text-destructive">*</span>
+                    </FormLabel>
+                    <Select onValueChange={field.onChange} value={field.value || ""}>
+                      <FormControl>
+                        <SelectTrigger>
+                          <SelectValue placeholder="Select your category" />
+                        </SelectTrigger>
+                      </FormControl>
+                      <SelectContent>
+                        {TEACHER_CATEGORIES.map((cat) => (
+                          <SelectItem key={cat} value={cat}>
+                            {cat}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
                     <FormMessage />
                   </FormItem>
                 )}
@@ -183,6 +221,7 @@ export default function Profile() {
             </CardContent>
           </Card>
 
+          {/* Current Posting */}
           <Card className="shadow-md border-t-4 border-t-secondary">
             <CardHeader>
               <CardTitle>Current Posting</CardTitle>
@@ -217,9 +256,22 @@ export default function Profile() {
               />
               <FormField
                 control={form.control}
+                name="panchayat"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Panchayat</FormLabel>
+                    <FormControl>
+                      <Input placeholder="Panchayat name" {...field} />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+              <FormField
+                control={form.control}
                 name="school"
                 render={({ field }) => (
-                  <FormItem className="md:col-span-2">
+                  <FormItem>
                     <FormLabel>School Name</FormLabel>
                     <FormControl>
                       <Input placeholder="Full school name" {...field} />
@@ -232,7 +284,7 @@ export default function Profile() {
                 control={form.control}
                 name="schoolCode"
                 render={({ field }) => (
-                  <FormItem>
+                  <FormItem className="md:col-span-2">
                     <FormLabel>School UDISE Code (Optional)</FormLabel>
                     <FormControl>
                       <Input placeholder="UDISE code" {...field} value={field.value || ""} />
