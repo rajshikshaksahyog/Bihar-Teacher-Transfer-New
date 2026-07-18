@@ -20,9 +20,11 @@ export const emailVerifySchema = z.object({
 
 export const TEACHER_CATEGORIES = [
   "BPSC TRE",
+  "BPSC HM",
   "Niyojit",
   "Sakshamta Passed (Vishesh Shikshak)",
   "Regular",
+  "Regular HM",
 ] as const;
 
 export const profileSchema = z.object({
