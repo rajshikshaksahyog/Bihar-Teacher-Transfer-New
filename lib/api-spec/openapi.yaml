@@ -3,20 +3,26 @@ info:
   # Do not change the title, if the title changes, the import paths will be broken
   title: Api
   version: 0.1.0
-  description: API specification
+  description: Bihar Teacher Mutual Transfer API
 servers:
   - url: /api
     description: Base API path
 tags:
   - name: health
     description: Health operations
+  - name: auth
+    description: Authentication operations
+  - name: teachers
+    description: Teacher profile operations
+  - name: transfers
+    description: Mutual transfer request operations
+
 paths:
   /healthz:
     get:
       operationId: healthCheck
       tags: [health]
       summary: Health check
-      description: Returns server health status
       responses:
         "200":
           description: Healthy
@@ -24,6 +30,352 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/HealthStatus"
+
+  /auth/send-otp:
+    post:
+      operationId: sendMobileOtp
+      tags: [auth]
+      summary: Send OTP to mobile number
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/MobileOtpRequest"
+      responses:
+        "200":
+          description: OTP sent
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/OtpSentResponse"
+        "400":
+          description: Bad request
+
+  /auth/verify-otp:
+    post:
+      operationId: verifyMobileOtp
+      tags: [auth]
+      summary: Verify mobile OTP and login
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/MobileOtpVerify"
+      responses:
+        "200":
+          description: Login successful
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/AuthResponse"
+        "401":
+          description: Invalid OTP
+
+  /auth/send-email-otp:
+    post:
+      operationId: sendEmailOtp
+      tags: [auth]
+      summary: Send OTP to email address
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/EmailOtpRequest"
+      responses:
+        "200":
+          description: OTP sent
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/OtpSentResponse"
+        "400":
+          description: Bad request
+
+  /auth/verify-email-otp:
+    post:
+      operationId: verifyEmailOtp
+      tags: [auth]
+      summary: Verify email OTP and login
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/EmailOtpVerify"
+      responses:
+        "200":
+          description: Login successful
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/AuthResponse"
+        "401":
+          description: Invalid OTP
+
+  /auth/me:
+    get:
+      operationId: getAuthMe
+      tags: [auth]
+      summary: Get current logged-in teacher
+      responses:
+        "200":
+          description: Current user
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Teacher"
+        "401":
+          description: Not authenticated
+
+  /auth/logout:
+    post:
+      operationId: logout
+      tags: [auth]
+      summary: Logout current session
+      responses:
+        "200":
+          description: Logged out
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/MessageResponse"
+
+  /teachers/me:
+    get:
+      operationId: getMyProfile
+      tags: [teachers]
+      summary: Get my teacher profile
+      responses:
+        "200":
+          description: Teacher profile
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Teacher"
+        "401":
+          description: Not authenticated
+    put:
+      operationId: updateMyProfile
+      tags: [teachers]
+      summary: Update my teacher profile
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/TeacherProfileInput"
+      responses:
+        "200":
+          description: Updated profile
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Teacher"
+
+  /teachers:
+    get:
+      operationId: listTeachers
+      tags: [teachers]
+      summary: Search and list teachers for mutual transfer
+      parameters:
+        - name: district
+          in: query
+          schema:
+            type: string
+        - name: subject
+          in: query
+          schema:
+            type: string
+        - name: designation
+          in: query
+          schema:
+            type: string
+        - name: block
+          in: query
+          schema:
+            type: string
+        - name: search
+          in: query
+          schema:
+            type: string
+        - name: page
+          in: query
+          schema:
+            type: integer
+            default: 1
+        - name: limit
+          in: query
+          schema:
+            type: integer
+            default: 20
+      responses:
+        "200":
+          description: List of teachers
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/TeacherListResponse"
+
+  /teachers/{id}:
+    get:
+      operationId: getTeacher
+      tags: [teachers]
+      summary: Get teacher by ID
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: Teacher details
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Teacher"
+        "404":
+          description: Not found
+
+  /transfers:
+    get:
+      operationId: listTransfers
+      tags: [transfers]
+      summary: List my transfer requests (sent and received)
+      parameters:
+        - name: status
+          in: query
+          schema:
+            type: string
+            enum: [pending, accepted, rejected, cancelled]
+        - name: type
+          in: query
+          schema:
+            type: string
+            enum: [sent, received]
+      responses:
+        "200":
+          description: Transfer requests
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/TransferRequest"
+    post:
+      operationId: createTransfer
+      tags: [transfers]
+      summary: Create a new mutual transfer request
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/TransferInput"
+      responses:
+        "201":
+          description: Transfer request created
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/TransferRequest"
+        "400":
+          description: Bad request
+
+  /transfers/stats:
+    get:
+      operationId: getTransferStats
+      tags: [transfers]
+      summary: Get transfer statistics for dashboard
+      responses:
+        "200":
+          description: Transfer stats
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/TransferStats"
+
+  /transfers/{id}:
+    get:
+      operationId: getTransfer
+      tags: [transfers]
+      summary: Get transfer request by ID
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: Transfer request
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/TransferRequest"
+        "404":
+          description: Not found
+
+  /transfers/{id}/accept:
+    patch:
+      operationId: acceptTransfer
+      tags: [transfers]
+      summary: Accept a transfer request
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: Transfer accepted
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/TransferRequest"
+
+  /transfers/{id}/reject:
+    patch:
+      operationId: rejectTransfer
+      tags: [transfers]
+      summary: Reject a transfer request
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: Transfer rejected
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/TransferRequest"
+
+  /transfers/{id}/cancel:
+    patch:
+      operationId: cancelTransfer
+      tags: [transfers]
+      summary: Cancel a transfer request
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: Transfer cancelled
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/TransferRequest"
+
 components:
   schemas:
     HealthStatus:
@@ -34,3 +386,232 @@ components:
       required:
         - status
 
+    MessageResponse:
+      type: object
+      properties:
+        message:
+          type: string
+      required:
+        - message
+
+    OtpSentResponse:
+      type: object
+      properties:
+        message:
+          type: string
+        expiresIn:
+          type: integer
+          description: OTP expiry in seconds
+      required:
+        - message
+        - expiresIn
+
+    MobileOtpRequest:
+      type: object
+      properties:
+        phone:
+          type: string
+          description: 10-digit mobile number
+      required:
+        - phone
+
+    MobileOtpVerify:
+      type: object
+      properties:
+        phone:
+          type: string
+        otp:
+          type: string
+      required:
+        - phone
+        - otp
+
+    EmailOtpRequest:
+      type: object
+      properties:
+        email:
+          type: string
+          description: Teacher email address
+      required:
+        - email
+
+    EmailOtpVerify:
+      type: object
+      properties:
+        email:
+          type: string
+          description: Teacher email address
+        otp:
+          type: string
+      required:
+        - email
+        - otp
+
+    AuthResponse:
+      type: object
+      properties:
+        teacher:
+          $ref: "#/components/schemas/Teacher"
+        isNewUser:
+          type: boolean
+      required:
+        - teacher
+        - isNewUser
+
+    Teacher:
+      type: object
+      properties:
+        id:
+          type: integer
+        name:
+          type: string
+        employeeId:
+          type: string
+        phone:
+          type: ["string", "null"]
+        email:
+          type: ["string", "null"]
+        designation:
+          type: string
+          description: "e.g. Primary Teacher, Middle Teacher, High School Teacher"
+        subject:
+          type: ["string", "null"]
+        district:
+          type: string
+        block:
+          type: string
+        school:
+          type: string
+        schoolCode:
+          type: ["string", "null"]
+        serviceYears:
+          type: ["integer", "null"]
+        isProfileComplete:
+          type: boolean
+        createdAt:
+          type: string
+          format: date-time
+      required:
+        - id
+        - name
+        - employeeId
+        - designation
+        - district
+        - block
+        - school
+        - isProfileComplete
+        - createdAt
+
+    TeacherProfileInput:
+      type: object
+      properties:
+        name:
+          type: string
+        employeeId:
+          type: string
+        designation:
+          type: string
+        subject:
+          type: string
+        district:
+          type: string
+        block:
+          type: string
+        school:
+          type: string
+        schoolCode:
+          type: string
+        serviceYears:
+          type: integer
+
+    TeacherListResponse:
+      type: object
+      properties:
+        teachers:
+          type: array
+          items:
+            $ref: "#/components/schemas/Teacher"
+        total:
+          type: integer
+        page:
+          type: integer
+        totalPages:
+          type: integer
+      required:
+        - teachers
+        - total
+        - page
+        - totalPages
+
+    TransferInput:
+      type: object
+      properties:
+        targetTeacherId:
+          type: integer
+        message:
+          type: string
+      required:
+        - targetTeacherId
+
+    TransferRequest:
+      type: object
+      properties:
+        id:
+          type: integer
+        requesterId:
+          type: integer
+        targetId:
+          type: integer
+        requester:
+          $ref: "#/components/schemas/Teacher"
+        target:
+          $ref: "#/components/schemas/Teacher"
+        status:
+          type: string
+          enum: [pending, accepted, rejected, cancelled]
+        message:
+          type: ["string", "null"]
+        createdAt:
+          type: string
+          format: date-time
+        updatedAt:
+          type: string
+          format: date-time
+      required:
+        - id
+        - requesterId
+        - targetId
+        - status
+        - createdAt
+        - updatedAt
+
+    TransferStats:
+      type: object
+      properties:
+        totalSent:
+          type: integer
+        totalReceived:
+          type: integer
+        pendingSent:
+          type: integer
+        pendingReceived:
+          type: integer
+        accepted:
+          type: integer
+        rejected:
+          type: integer
+        totalTeachersRegistered:
+          type: integer
+        recentActivity:
+          type: array
+          items:
+            $ref: "#/components/schemas/TransferRequest"
+      required:
+        - totalSent
+        - totalReceived
+        - pendingSent
+        - pendingReceived
+        - accepted
+        - rejected
+        - totalTeachersRegistered
+        - recentActivity
