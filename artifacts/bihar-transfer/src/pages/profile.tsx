@@ -3,7 +3,7 @@ import { useQueryClient } from "@tanstack/react-query";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useToast } from "@/hooks/use-toast";
-import { profileSchema, TEACHER_CATEGORIES } from "@/lib/schemas";
+import { profileSchema, TEACHER_CATEGORIES, CASTE_CATEGORIES } from "@/lib/schemas";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle, CardFooter } from "@/components/ui/card";
@@ -28,6 +28,7 @@ export default function Profile() {
       designation: "",
       subject: "",
       teacherCategory: undefined,
+      casteCategory: undefined,
       district: "",
       block: "",
       panchayat: "",
@@ -45,6 +46,7 @@ export default function Profile() {
         designation: profile.designation || "",
         subject: profile.subject || "",
         teacherCategory: (profile as any).teacherCategory || undefined,
+        casteCategory: (profile as any).casteCategory || undefined,
         district: profile.district || "",
         block: profile.block || "",
         panchayat: (profile as any).panchayat || "",
@@ -181,6 +183,32 @@ export default function Profile() {
                       </FormControl>
                       <SelectContent>
                         {TEACHER_CATEGORIES.map((cat) => (
+                          <SelectItem key={cat} value={cat}>
+                            {cat}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+              <FormField
+                control={form.control}
+                name="casteCategory"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>
+                      Joining Caste Category (आरक्षित श्रेणी) <span className="text-destructive">*</span>
+                    </FormLabel>
+                    <Select onValueChange={field.onChange} value={field.value || ""}>
+                      <FormControl>
+                        <SelectTrigger>
+                          <SelectValue placeholder="Select caste category" />
+                        </SelectTrigger>
+                      </FormControl>
+                      <SelectContent>
+                        {CASTE_CATEGORIES.map((cat) => (
                           <SelectItem key={cat} value={cat}>
                             {cat}
                           </SelectItem>

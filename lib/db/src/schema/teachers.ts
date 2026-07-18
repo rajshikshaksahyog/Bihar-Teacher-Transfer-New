@@ -16,6 +16,7 @@ export const teachersTable = pgTable("teachers", {
   schoolCode: text("school_code"),
   panchayat: text("panchayat"),
   teacherCategory: text("teacher_category"),
+  casteCategory: text("caste_category"),
   serviceYears: integer("service_years"),
   isProfileComplete: boolean("is_profile_complete").notNull().default(false),
   createdAt: timestamp("created_at").notNull().defaultNow(),

@@ -27,12 +27,22 @@ export const TEACHER_CATEGORIES = [
   "Regular HM",
 ] as const;
 
+export const CASTE_CATEGORIES = [
+  "UR (General)",
+  "EBC (अत्यंत पिछड़ा वर्ग)",
+  "BC (पिछड़ा वर्ग)",
+  "SC (अनुसूचित जाति)",
+  "ST (अनुसूचित जनजाति)",
+  "EWS (आर्थिक रूप से कमजोर वर्ग)",
+] as const;
+
 export const profileSchema = z.object({
   name: z.string().min(2, { message: "Name is required" }),
   phone: z.string().length(10, { message: "Mobile number must be 10 digits" }).regex(/^\d+$/, { message: "Must contain only numbers" }).optional().nullable(),
   designation: z.string().min(2, { message: "Designation is required" }),
   subject: z.string().optional().nullable(),
   teacherCategory: z.enum(TEACHER_CATEGORIES, { message: "Please select a teacher category" }),
+  casteCategory: z.enum(CASTE_CATEGORIES, { message: "Please select a caste category" }),
   district: z.string().min(2, { message: "District is required" }),
   block: z.string().min(2, { message: "Block is required" }),
   panchayat: z.string().min(1, { message: "Panchayat is required" }),
