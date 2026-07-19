@@ -4,7 +4,7 @@ import { useQueryClient } from "@tanstack/react-query";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useToast } from "@/hooks/use-toast";
-import { profileSchema, TEACHER_CATEGORIES, CASTE_CATEGORIES, DESIGNATIONS } from "@/lib/schemas";
+import { profileSchema, TEACHER_CATEGORIES, CASTE_CATEGORIES, DESIGNATIONS, SUBJECTS } from "@/lib/schemas";
 import { BIHAR_DISTRICTS, getBlocks, getPanchayats } from "@/lib/bihar-location-data";
 import { useUpload } from "@workspace/object-storage-web";
 import { Button } from "@/components/ui/button";
@@ -42,7 +42,8 @@ export default function Profile() {
       name: "",
       phone: "",
       designation: undefined,
-      subject: "",
+      subject: undefined,
+      subjectOther: "",
       teacherCategory: undefined,
       casteCategory: undefined,
       district: "",
@@ -54,20 +55,25 @@ export default function Profile() {
     },
   });
 
-  // Watch district and block to drive cascading dropdowns
+  // Watch for cascading dropdowns and conditional subject field
   const watchedDistrict = form.watch("district");
   const watchedBlock = form.watch("block");
+  const watchedSubject = form.watch("subject");
 
   const availableBlocks = watchedDistrict ? getBlocks(watchedDistrict) : [];
   const availablePanchayats = watchedDistrict && watchedBlock ? getPanchayats(watchedDistrict, watchedBlock) : [];
 
   useEffect(() => {
     if (profile) {
+      // If saved subject is a custom value not in the enum list, load it as "Others"
+      const savedSubject = profile.subject as any;
+      const isKnownSubject = SUBJECTS.includes(savedSubject);
       form.reset({
         name: profile.name || "",
         phone: (profile as any).phone || "",
         designation: (profile as any).designation || undefined,
-        subject: profile.subject || "",
+        subject: isKnownSubject ? savedSubject : (savedSubject ? "Others" : undefined),
+        subjectOther: isKnownSubject ? "" : (savedSubject || ""),
         teacherCategory: (profile as any).teacherCategory || undefined,
         casteCategory: (profile as any).casteCategory || undefined,
         district: profile.district || "",
@@ -98,8 +104,13 @@ export default function Profile() {
   };
 
   const onSubmit = (values: z.infer<typeof profileSchema>) => {
+    // When "Others" is chosen, send the typed custom subject instead
+    const resolvedSubject = values.subject === "Others"
+      ? (values.subjectOther?.trim() ?? "Others")
+      : values.subject;
+
     updateProfile.mutate(
-      { data: { ...values, profilePicture: profilePicturePath } as any },
+      { data: { ...values, subject: resolvedSubject, profilePicture: profilePicturePath } as any },
       {
         onSuccess: (data) => {
           queryClient.setQueryData(getGetMyProfileQueryKey(), data);
@@ -271,12 +282,41 @@ export default function Profile() {
               <FormField control={form.control} name="subject" render={({ field }) => (
                 <FormItem>
                   <FormLabel>Subject <span className="text-destructive">*</span></FormLabel>
-                  <FormControl>
-                    <Input placeholder="e.g. Mathematics, Hindi, Science" {...field} value={field.value || ""} />
-                  </FormControl>
+                  <Select
+                    onValueChange={(val) => {
+                      field.onChange(val);
+                      if (val !== "Others") form.setValue("subjectOther", "", { shouldValidate: false });
+                    }}
+                    value={field.value || ""}
+                  >
+                    <FormControl>
+                      <SelectTrigger><SelectValue placeholder="Select subject" /></SelectTrigger>
+                    </FormControl>
+                    <SelectContent>
+                      {SUBJECTS.map((s) => (
+                        <SelectItem key={s} value={s}>{s}</SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
                   <FormMessage />
                 </FormItem>
               )} />
+
+              {/* Conditional custom subject input */}
+              {watchedSubject === "Others" && (
+                <FormField control={form.control} name="subjectOther" render={({ field }) => (
+                  <FormItem className="md:col-span-2">
+                    <FormLabel>
+                      Enter Your Subject <span className="text-muted-foreground font-normal">(अपना विषय लिखें)</span>{" "}
+                      <span className="text-destructive">*</span>
+                    </FormLabel>
+                    <FormControl>
+                      <Input placeholder="e.g. Fine Arts, Physical Education, Computer Science…" {...field} value={field.value || ""} autoFocus />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )} />
+              )}
 
               {/* Years of Service */}
               <FormField control={form.control} name="serviceYears" render={({ field }) => (

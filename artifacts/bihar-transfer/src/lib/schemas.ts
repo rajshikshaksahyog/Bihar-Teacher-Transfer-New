@@ -36,6 +36,29 @@ export const CASTE_CATEGORIES = [
   "EWS (आर्थिक रूप से कमजोर वर्ग)",
 ] as const;
 
+export const SUBJECTS = [
+  "Mathematics",
+  "Science",
+  "Social Science",
+  "Hindi",
+  "English",
+  "Sanskrit",
+  "Urdu",
+  "Maithili",
+  "Bhojpuri",
+  "Physics",
+  "Chemistry",
+  "Biology",
+  "History",
+  "Geography",
+  "Political Science",
+  "Economics",
+  "Accountancy",
+  "Business Studies",
+  "Home Science",
+  "Others",
+] as const;
+
 export const DESIGNATIONS = [
   "Primary Teacher (1-5)",
   "Middle School Teacher (6-8)",
@@ -47,7 +70,8 @@ export const profileSchema = z.object({
   name: z.string().min(2, { message: "Name is required" }),
   phone: z.string().length(10, { message: "Mobile number must be 10 digits" }).regex(/^\d+$/, { message: "Must contain only numbers" }).optional().nullable(),
   designation: z.enum(DESIGNATIONS, { message: "Please select a designation" }),
-  subject: z.string().min(1, { message: "Subject is required" }),
+  subject: z.enum(SUBJECTS, { message: "Please select a subject" }),
+  subjectOther: z.string().optional(),
   teacherCategory: z.enum(TEACHER_CATEGORIES, { message: "Please select a teacher category" }),
   casteCategory: z.enum(CASTE_CATEGORIES, { message: "Please select a caste category" }),
   district: z.string().min(2, { message: "District is required" }),
@@ -56,6 +80,14 @@ export const profileSchema = z.object({
   school: z.string().min(2, { message: "School name is required" }),
   schoolCode: z.string().optional().nullable(),
   serviceYears: z.coerce.number().min(0).max(50).optional().nullable(),
+}).superRefine((data, ctx) => {
+  if (data.subject === "Others" && !data.subjectOther?.trim()) {
+    ctx.addIssue({
+      code: z.ZodIssueCode.custom,
+      message: "Please enter your subject",
+      path: ["subjectOther"],
+    });
+  }
 });
 
 export const transferRequestSchema = z.object({

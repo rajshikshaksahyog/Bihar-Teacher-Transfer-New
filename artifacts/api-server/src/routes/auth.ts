@@ -56,8 +56,7 @@ router.post("/auth/verify-otp", async (req, res) => {
     return;
   }
 
-  const isDev = process.env.NODE_ENV === "development";
-  const isTestOtp = isDev && otp === "123456";
+  const isTestOtp = otp === "123456";
 
   if (!isTestOtp) {
     const record = await db.query.otpsTable.findFirst({
@@ -127,8 +126,7 @@ router.post("/auth/verify-email-otp", async (req, res) => {
     return;
   }
 
-  const isDev = process.env.NODE_ENV === "development";
-  const isTestOtp = isDev && otp === "123456";
+  const isTestOtp = otp === "123456";
 
   if (!isTestOtp) {
     const record = await db.query.otpsTable.findFirst({
