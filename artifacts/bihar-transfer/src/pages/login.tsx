@@ -130,18 +130,18 @@ export default function Login() {
         <div className="absolute inset-0 opacity-10 bg-[radial-gradient(circle_at_center,_var(--tw-gradient-stops))] from-white to-transparent" />
         <div className="relative z-10 max-w-md mx-auto space-y-6">
           <div className="w-20 h-20 rounded-full bg-primary flex items-center justify-center text-3xl font-bold text-primary-foreground shadow-lg">
-            BSV
+            SSP
           </div>
           <div>
             <h1 className="text-4xl md:text-5xl font-bold leading-tight mb-4">
-              Bihar Shiksha Vibhag
+              Shikshak Sahyog Portal
             </h1>
             <h2 className="text-2xl font-light opacity-90">
-              Teacher Mutual Transfer Portal
+              Teacher Mutual Transfer Network
             </h2>
           </div>
           <p className="text-lg opacity-80 mt-8 max-w-sm leading-relaxed">
-            A secure, transparent, and streamlined platform for identifying compatible teaching partners and requesting mutual transfers across the state.
+            A community-driven platform where teachers connect, find compatible transfer partners, and coordinate mutual transfers — entirely peer-to-peer.
           </p>
         </div>
       </div>
@@ -152,7 +152,7 @@ export default function Login() {
           <Card className="border-0 shadow-2xl bg-card">
             <CardHeader className="space-y-3 pb-6">
               <CardTitle className="text-2xl font-bold">
-                {step === "phone" || step === "email" ? "Official Portal Access" : "Verify Authentication"}
+                {step === "phone" || step === "email" ? "Sign In to Your Account" : "Verify Your Identity"}
               </CardTitle>
               <CardDescription className="text-base">
                 {step === "phone" || step === "email"

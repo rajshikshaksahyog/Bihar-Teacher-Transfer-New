@@ -55,20 +55,20 @@ export function Layout({ children }: { children: React.ReactNode }) {
       <header className="sticky top-0 z-40 w-full border-b border-border bg-card shadow-sm">
         <div className="container mx-auto px-4 h-16 flex items-center justify-between">
           <div className="flex items-center gap-2">
-            {/* Government seal placeholder */}
+            {/* Portal logo */}
             <div className="w-8 h-8 rounded-full bg-primary flex items-center justify-center text-primary-foreground font-bold text-sm">
-              BSV
+              SSP
             </div>
             <div className="hidden md:block">
               <h1 className="text-lg font-bold text-foreground leading-tight">
-                Bihar Shiksha Vibhag
+                Shikshak Sahyog Portal
               </h1>
               <p className="text-xs text-muted-foreground font-medium">
-                Mutual Transfer Portal
+                Teacher Mutual Transfer Network
               </p>
             </div>
             <div className="block md:hidden font-bold text-foreground">
-              Mutual Transfer
+              Shikshak Sahyog
             </div>
           </div>
 
