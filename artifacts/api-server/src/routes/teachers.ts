@@ -64,7 +64,7 @@ router.put("/teachers/me", async (req, res) => {
 
 // GET /api/teachers
 router.get("/teachers", async (req, res) => {
-  const { district, subject, designation, block, search, page = "1", limit = "20" } = req.query as Record<string, string>;
+  const { district, subject, designation, block, panchayat, search, page = "1", limit = "20" } = req.query as Record<string, string>;
   const pageNum = Math.max(1, parseInt(page));
   const limitNum = Math.min(50, Math.max(1, parseInt(limit)));
   const offset = (pageNum - 1) * limitNum;
@@ -78,9 +78,10 @@ router.get("/teachers", async (req, res) => {
   }
 
   if (district) conditions.push(eq(teachersTable.district, district));
+  if (block) conditions.push(eq(teachersTable.block, block));
+  if (panchayat) conditions.push(eq(teachersTable.panchayat, panchayat));
   if (subject) conditions.push(eq(teachersTable.subject, subject));
   if (designation) conditions.push(eq(teachersTable.designation, designation));
-  if (block) conditions.push(eq(teachersTable.block, block));
   if (search) {
     conditions.push(
       or(
