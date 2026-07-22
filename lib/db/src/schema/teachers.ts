@@ -27,3 +27,4 @@ export const teachersTable = pgTable("teachers", {
 export const insertTeacherSchema = createInsertSchema(teachersTable).omit({ id: true, createdAt: true, updatedAt: true });
 export type InsertTeacher = z.infer<typeof insertTeacherSchema>;
 export type Teacher = typeof teachersTable.$inferSelect;
+export type TeacherId = Pick<Teacher, "id">;
