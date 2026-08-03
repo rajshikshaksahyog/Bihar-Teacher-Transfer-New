@@ -1,10 +1,13 @@
-import { Router, type IRouter } from "express";
-Fix health route
-const router: IRouter = Router();
+
+import { Router } from "express";
+
+const router = Router();
 
 router.get("/healthz", (_req, res) => {
-  const data = { status: "ok" };
-  res.json(data);
+  res.status(200).json({
+    status: "ok",
+    message: "API is running"
+  });
 });
 
 export default router;
